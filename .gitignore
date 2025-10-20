@@ -17,3 +17,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# docker data
+/docker/mongodata

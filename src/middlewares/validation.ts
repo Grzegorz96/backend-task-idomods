@@ -14,7 +14,7 @@ export const validate = <T>(
     try {
       const data = req[source];
       const validatedData = schema.parse(data);
-      // Dodaj zwalidowane dane do request
+      // Add validated data to request
       req.validatedData = validatedData;
 
       next();

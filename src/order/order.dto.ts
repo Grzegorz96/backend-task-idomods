@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// DTO dla query parameters GET /orders
+// DTO for query parameters GET /orders
 export const GetOrdersQueryDto = z
   .object({
     minWorth: z
@@ -20,7 +20,7 @@ export const GetOrdersQueryDto = z
   })
   .refine(
     (data) => {
-      // minWorth nie może być większe od maxWorth
+      // minWorth cannot be greater than maxWorth
       if (data.minWorth !== undefined && data.maxWorth !== undefined) {
         return data.minWorth <= data.maxWorth;
       }
@@ -31,7 +31,7 @@ export const GetOrdersQueryDto = z
     }
   );
 
-// DTO dla path parameters GET /orders/:orderNumber
+// DTO for path parameters GET /orders/:orderNumber
 export const GetOrderParamsDto = z.object({
   orderNumber: z
     .string()
@@ -41,6 +41,6 @@ export const GetOrderParamsDto = z.object({
     }),
 });
 
-// Typy TypeScript wygenerowane z DTO
+// TypeScript types generated from DTO
 export type GetOrdersQuery = z.infer<typeof GetOrdersQueryDto>;
 export type GetOrderParams = z.infer<typeof GetOrderParamsDto>;

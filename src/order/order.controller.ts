@@ -17,14 +17,14 @@ export class OrderController {
   }
 
   private setupRoutes(): void {
-    // GET /orders - pobierz wszystkie zamówienia w formacie CSV
+    // GET /orders - retrieve all orders in CSV format
     this.router.get(
       "/",
       validateQuery(GetOrdersQueryDto),
       this.getAllOrders.bind(this)
     );
 
-    // GET /orders/:orderNumber - pobierz konkretne zamówienie
+    // GET /orders/:orderNumber - retrieve specific order by number
     this.router.get(
       "/:orderNumber",
       validateParams(GetOrderParamsDto),

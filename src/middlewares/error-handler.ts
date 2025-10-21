@@ -5,7 +5,7 @@ import {
   UnauthorizedError,
 } from "../utils/errors";
 
-// Middleware do obsługi błędów
+// Middleware for error handling
 export const errorHandler = (
   error: Error,
   req: Request,
@@ -42,7 +42,7 @@ export const errorHandler = (
     });
   }
 
-  // Błąd walidacji Zod
+  // Zod validation error
   if (error.name === "ZodError") {
     return res.status(400).json({
       error: "Validation Error",
@@ -51,7 +51,7 @@ export const errorHandler = (
     });
   }
 
-  // Błąd MongoDB
+  // MongoDB error
   if (error.name === "MongoError" || error.name === "MongooseError") {
     return res.status(500).json({
       error: "Database Error",
@@ -59,7 +59,7 @@ export const errorHandler = (
     });
   }
 
-  // Błąd połączenia z zewnętrznym API
+  // External API connection error
   if (error.name === "AxiosError") {
     return res.status(502).json({
       error: "External API Error",
@@ -67,7 +67,7 @@ export const errorHandler = (
     });
   }
 
-  // Błąd autoryzacji
+  // Authorization error
   if (error.name === "UnauthorizedError") {
     return res.status(401).json({
       error: "Unauthorized",
@@ -75,7 +75,7 @@ export const errorHandler = (
     });
   }
 
-  // Domyślny błąd serwera
+  // Default server error
   res.status(500).json({
     error: "Internal Server Error",
     message:
@@ -85,7 +85,7 @@ export const errorHandler = (
   });
 };
 
-// Middleware do obsługi nieistniejących route
+// Middleware for handling non-existent routes
 export const notFoundHandler = (req: Request, res: Response) => {
   res.status(404).json({
     error: "Not Found",

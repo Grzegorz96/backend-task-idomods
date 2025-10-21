@@ -20,10 +20,10 @@ app.use(rateLimiter);
 // Order routes with stricter rate limiting
 app.use("/orders", orderRateLimiter, orderController.getRouter());
 
-// 404 handler - musi być przed error handler
+// 404 handler - must be before error handler
 app.use(notFoundHandler);
 
-// Error handler - musi być na końcu
+// Error handler - must be at the end
 app.use(errorHandler);
 
 mongoose

@@ -70,7 +70,7 @@ const OrderSchema: Schema = new Schema(
   }
 );
 
-// Dodaj indeksy dla lepszej wydajności
+// Add indexes for better performance
 OrderSchema.index({ totalAmount: 1 });
 OrderSchema.index({ status: 1 });
 OrderSchema.index({ createdAt: -1 });

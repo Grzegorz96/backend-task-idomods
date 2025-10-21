@@ -1,38 +1,55 @@
-import { Transform } from "@json2csv/node";
-import { Order } from "../models";
-import { Readable } from "stream";
+import { AsyncParser } from "@json2csv/node";
+import { IOrder } from "../order/order.model";
 
-export const exportOrdersToCSV = async (
-  minWorth?: number,
-  maxWorth?: number
-): Promise<string> => {
-  // Przygotowanie filtra
-  const filter: any = {};
-  if (minWorth !== undefined) filter.totalAmount = { $gte: minWorth };
-  if (maxWorth !== undefined)
-    filter.totalAmount = { ...filter.totalAmount, $lte: maxWorth };
+export interface CsvOrder {
+  orderNumber: number;
+  totalAmount: number;
+  currency: string;
+  status: string;
+  products: string;
+}
 
-  const orders = await Order.find(filter).lean();
-
-  if (orders.length === 0) return "";
-
-  // Konwertujemy tablicę do streamu
-  const readable = Readable.from(orders);
-
-  // Tworzymy parser CSV
-  const transformOpts = {
-    fields: ["orderNumber", "totalAmount", "products"],
-  };
-  const parser = new Transform(transformOpts);
-
-  let csv = "";
-  const chunks: string[] = [];
-
-  return new Promise((resolve, reject) => {
-    readable
-      .pipe(parser)
-      .on("data", (chunk: Buffer | string) => chunks.push(chunk.toString()))
-      .on("end", () => resolve(chunks.join("")))
-      .on("error", (err) => reject(err));
+export class CsvConverter {
+  private static asyncParser = new AsyncParser<CsvOrder, CsvOrder>({
+    fields: [
+      {
+        label: "orderNumber",
+        value: "orderNumber",
+      },
+      {
+        label: "totalAmount",
+        value: "totalAmount",
+      },
+      {
+        label: "currency",
+        value: "currency",
+      },
+      {
+        label: "status",
+        value: "status",
+      },
+      {
+        label: "products",
+        value: "products",
+      },
+    ],
   });
-};
+
+  static async convertOrdersToCsv(orders: IOrder[]): Promise<string> {
+    if (orders.length === 0) {
+      return "orderNumber,totalAmount,currency,status,products\n";
+    }
+
+    const csvOrders: CsvOrder[] = orders.map((order) => ({
+      orderNumber: order.orderNumber,
+      totalAmount: order.totalAmount,
+      currency: order.currency,
+      status: order.status,
+      products: order.products
+        .map((p) => `${p.productId}(${p.quantity})`)
+        .join("; "),
+    }));
+
+    return await this.asyncParser.parse(csvOrders).promise();
+  }
+}

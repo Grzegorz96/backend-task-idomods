@@ -13,12 +13,14 @@ export const envSchema = z.object({
     .string()
     .nonempty()
     .transform((val) => parseInt(val, 10)),
-  JWT_SECRET: z.string().nonempty(),
   PORT: z
     .string()
     .nonempty()
     .transform((val) => parseInt(val, 10))
     .default(3000),
+  ALLOWED_ORIGINS: z.string().transform((val) => {
+    return val.split(",").map((origin) => origin.trim());
+  }),
 });
 
 export const env = envSchema.parse(process.env);

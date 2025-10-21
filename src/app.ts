@@ -1,19 +1,42 @@
 import express from "express";
 import mongoose from "mongoose";
 import { env } from "./config";
-import ordersController from "./controllers/orders.controller";
-import { startOrderUpdater } from "./services/order-updater";
+import { orderController, orderService } from "./order";
+import {
+  corsMiddleware,
+  rateLimiter,
+  orderRateLimiter,
+} from "./middlewares/security";
+import { errorHandler, notFoundHandler } from "./middlewares/error-handler";
 
 const app = express();
 
 app.use(express.json());
-app.use("/orders", ordersController);
+
+// Security middleware
+app.use(corsMiddleware);
+app.use(rateLimiter);
+
+// Order routes with stricter rate limiting
+app.use("/orders", orderRateLimiter, orderController.getRouter());
+
+// 404 handler - musi być przed error handler
+app.use(notFoundHandler);
+
+// Error handler - musi być na końcu
+app.use(errorHandler);
 
 mongoose
-  .connect(env.MONGO_URI)
+  .connect(env.MONGO_URI, {
+    dbName: env.MONGO_DB_NAME,
+    auth: {
+      username: env.MONGO_INITDB_ROOT_USERNAME,
+      password: env.MONGO_INITDB_ROOT_PASSWORD,
+    },
+  })
   .then(() => {
-    console.log("Connected to MongoDB");
-    startOrderUpdater();
+    console.log(`Connected to MongoDB database: ${env.MONGO_DB_NAME}`);
+    orderService.startOrderUpdater();
   })
   .catch((err) => console.error("MongoDB connection error:", err));
 
